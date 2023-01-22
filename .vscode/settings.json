@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "iostream": "cpp",
+    "xiosbase": "cpp",
+    "system_error": "cpp",
+    "type_traits": "cpp",
+    "xlocnum": "cpp",
+    "xtr1common": "cpp",
+    "xutility": "cpp"
+  }
+}

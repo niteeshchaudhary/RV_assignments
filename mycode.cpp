@@ -162,45 +162,56 @@ int evaluate(tree *parseTree, unordered_map<char, int> um)
         if (parseTree->val == '>')
         {
             int rs = Oper.iimplies(evaluate(leftC, um), evaluate(rightC, um));
-            cout << ">" << rs << endl;
+            // cout << ">" << rs << endl;
             return rs;
             // return Oper.iimplies(evaluate(leftC, um), evaluate(rightC, um));
         }
         else if (parseTree->val == '^')
         {
-            return Oper.aand(evaluate(leftC, um), evaluate(rightC, um));
+            int rs = Oper.aand(evaluate(leftC, um), evaluate(rightC, um));
+            // cout << "^" << rs << endl;
+            return rs;
         }
-        else if (parseTree->val == 'v')
+        else // if (parseTree->val == 'v')
         {
-            return Oper.oor(evaluate(leftC, um), evaluate(rightC, um));
-        }
-        else if (parseTree->val == '!')
-        {
-            return Oper.nnot(evaluate(rightC, um));
+            int rs = Oper.oor(evaluate(leftC, um), evaluate(rightC, um));
+            // cout << "v" << rs << endl;
+            return rs;
         }
     }
-    else
+    else if (rightC)
     {
-        // if(parseTree->val=='0'){
-        //     return 0;
-        // }
-        // else{
-        //     return 1;
-        // }
-        return um[parseTree->val];
+        if (parseTree->val == '!')
+        {
+
+            int rs = Oper.nnot(evaluate(rightC, um));
+            //   cout << "!" << rs << endl;
+            return rs;
+        }
     }
+
+    // if(parseTree->val=='0'){
+    //     return 0;
+    // }
+    // else{
+    //     return 1;
+    // }
+    // cout << "{" << parseTree->val << endl;
+    return um[parseTree->val];
 }
 
 int main()
 {
 
-    string exp = "!AvB^CvK>Cv!A^B>H";
+    string exp = "!Rv!G";
     unordered_map<char, int> um;
     um['A'] = 1;
     um['B'] = 1;
     um['C'] = 1;
     um['K'] = 1;
     um['H'] = 0;
+    um['R'] = 0;
+    um['G'] = 0;
     tree *tr = construct_tree(exp, 0, exp.size() - 1);
     print_tree(tr, 0);
     cout << endl

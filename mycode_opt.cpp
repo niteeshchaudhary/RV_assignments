@@ -3,7 +3,10 @@
 #include <string>
 #include <unordered_map>
 #include <stdlib.h>
+#include <queue>
 using namespace std;
+
+unordered_map<char, queue<int>> order;
 class tree
 {
 public:
@@ -17,49 +20,53 @@ public:
         right = NULL;
     }
 };
-
+void readexpr(string expr)
+{
+    for (int i = 0; i < expr.size(); i++)
+    {
+        order[expr[i]].push(i);
+    }
+}
 tree *construct_tree(string arr, int l, int r)
 {
     tree *tr = new tree(' ');
-    for (int i = l; i <= r; i++)
+
+    if (order['>'].size() > 0 && order['>'].front() >= l && order['>'].front() <= r)
     {
-        if (arr[i] == '>')
-        {
-            tr->val = '>';
-            tr->left = construct_tree(arr, l, i - 1);
-            tr->right = construct_tree(arr, i + 1, r);
-            return tr;
-        }
+        int i = order['>'].front();
+        order['>'].pop();
+        tr->val = '>';
+        tr->left = construct_tree(arr, l, i - 1);
+        tr->right = construct_tree(arr, i + 1, r);
+        return tr;
     }
-    for (int i = l; i <= r; i++)
+    if (order['^'].size() > 0 && order['^'].front() >= l && order['^'].front() <= r)
     {
-        if (arr[i] == '^')
-        {
-            tr->val = '^';
-            tr->left = construct_tree(arr, l, i - 1);
-            tr->right = construct_tree(arr, i + 1, r);
-            return tr;
-        }
+        int i = order['^'].front();
+        order['^'].pop();
+        tr->val = '^';
+        tr->left = construct_tree(arr, l, i - 1);
+        tr->right = construct_tree(arr, i + 1, r);
+        return tr;
     }
-    for (int i = l; i <= r; i++)
+    if (order['v'].size() > 0 && order['v'].front() >= l && order['v'].front() <= r)
     {
-        if (arr[i] == 'v')
-        {
-            tr->val = 'v';
-            tr->left = construct_tree(arr, l, i - 1);
-            tr->right = construct_tree(arr, i + 1, r);
-            return tr;
-        }
+        int i = order['v'].front();
+        order['v'].pop();
+        tr->val = 'v';
+        tr->left = construct_tree(arr, l, i - 1);
+        tr->right = construct_tree(arr, i + 1, r);
+        return tr;
     }
-    for (int i = l; i <= r; i++)
+    if (order['!'].size() > 0 && order['!'].front() >= l && order['!'].front() <= r)
     {
-        if (arr[i] == '!')
-        {
-            tr->val = '!';
-            tr->left = NULL;
-            tr->right = construct_tree(arr, i + 1, r);
-            return tr;
-        }
+        int i = order['!'].front();
+        order['!'].pop();
+        tr->val = '!';
+        tr->left = NULL;
+        tr->right = construct_tree(arr, i + 1, r);
+        return tr;
+        return tr;
     }
     if (l == r)
     {
@@ -162,46 +169,63 @@ int evaluate(tree *parseTree, unordered_map<char, int> um)
         if (parseTree->val == '>')
         {
             int rs = Oper.iimplies(evaluate(leftC, um), evaluate(rightC, um));
-            cout << ">" << rs << endl;
+            // cout << ">" << rs << endl;
             return rs;
             // return Oper.iimplies(evaluate(leftC, um), evaluate(rightC, um));
         }
         else if (parseTree->val == '^')
         {
-            return Oper.aand(evaluate(leftC, um), evaluate(rightC, um));
+            int rs = Oper.aand(evaluate(leftC, um), evaluate(rightC, um));
+            // cout << "^" << rs << endl;
+            return rs;
         }
-        else if (parseTree->val == 'v')
+        else // if (parseTree->val == 'v')
         {
-            return Oper.oor(evaluate(leftC, um), evaluate(rightC, um));
-        }
-        else if (parseTree->val == '!')
-        {
-            return Oper.nnot(evaluate(rightC, um));
+            int rs = Oper.oor(evaluate(leftC, um), evaluate(rightC, um));
+            // cout << "v" << rs << endl;
+            return rs;
         }
     }
-    else
+    else if (rightC)
     {
-        // if(parseTree->val=='0'){
-        //     return 0;
-        // }
-        // else{
-        //     return 1;
-        // }
-        return um[parseTree->val];
+        if (parseTree->val == '!')
+        {
+
+            int rs = Oper.nnot(evaluate(rightC, um));
+            //   cout << "!" << rs << endl;
+            return rs;
+        }
     }
+
+    // if(parseTree->val=='0'){
+    //     return 0;
+    // }
+    // else{
+    //     return 1;
+    // }
+    // cout << "{" << parseTree->val << endl;
+    return um[parseTree->val];
 }
 
 int main()
 {
 
-    string exp = "!AvB^CvK>Cv!A^B>H";
-    unordered_map<char, int> um;
-    um['A'] = 1;
-    um['B'] = 1;
-    um['C'] = 1;
-    um['K'] = 1;
-    um['H'] = 0;
+    string exp = "!Av!BvCvDv!Dv!E>F^!G^GvF^!G^H";
+    readexpr(exp);
     tree *tr = construct_tree(exp, 0, exp.size() - 1);
+    unordered_map<char, int> um;
+    um['A'] = 0;
+    um['B'] = 0;
+    um['C'] = 0;
+    um['D'] = 1;
+    um['E'] = 1;
+    um['F'] = 1;
+    um['G'] = 0;
+    um['H'] = 1;
+    um['K'] = 1;
+
+    um['R'] = 1;
+
     print_tree(tr, 0);
     cout << endl
          << "*" << evaluate(tr, um);

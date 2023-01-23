@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <stdlib.h>
+#include <fstream>
 #include <queue>
 #include <math.h>
 using namespace std;
@@ -22,6 +23,7 @@ public:
         right = NULL;
     }
 };
+
 void readexpr(string expr)
 {
     for (int i = 0; i < expr.size(); i++)
@@ -29,6 +31,7 @@ void readexpr(string expr)
         order[expr[i]].push(i);
     }
 }
+
 tree *construct_tree(string arr, int l, int r, int d)
 {
     tree *tr = new tree(' ');
@@ -79,15 +82,6 @@ tree *construct_tree(string arr, int l, int r, int d)
         tr = new tree(arr[l]);
     }
     return tr;
-}
-void postorder(tree *tr)
-{
-    if (tr != NULL)
-    {
-        postorder(tr->left);
-        postorder(tr->right);
-        cout << tr->val << endl;
-    }
 }
 
 void print_tree(tree *root, int level)
@@ -146,23 +140,6 @@ public:
     }
 };
 
-int to_int(string str)
-{
-    stringstream convert(str);
-    int x = 0;
-    convert >> x;
-    return x;
-}
-
-string tostr(int num)
-{
-    string str;
-    ostringstream convert;
-    convert << num;
-    str = convert.str();
-    return str;
-}
-
 int evaluate(tree *parseTree, unordered_map<char, int> um)
 {
     Operator Oper;
@@ -198,20 +175,13 @@ int evaluate(tree *parseTree, unordered_map<char, int> um)
         {
 
             int rs = Oper.nnot(evaluate(rightC, um));
-            //   cout << "!" << rs << endl;
             return rs;
         }
     }
 
-    // if(parseTree->val=='0'){
-    //     return 0;
-    // }
-    // else{
-    //     return 1;
-    // }
-    // cout << "{" << parseTree->val << endl;
     return um[parseTree->val];
 }
+
 void printTree(tree *tr, int sz, int depth)
 {
     queue<pair<tree *, int>> qu;
@@ -273,24 +243,52 @@ void printTree(tree *tr, int sz, int depth)
 }
 
 int main()
-{   
-    FILE * fl=fopen("testcases","r");
+{
+    string mytext = "";
+    unordered_map<char, int> um;
+
+    // Read from the text file
+    ifstream readfile("testcases/testcases/property2/system4.input");
+    ofstream writefile("testcases/testcases/property2/user.verdict");
+
     string exp = "!Av!BvCvDv!Dv!E>F^!G^GvF^!G^H";
     readexpr(exp);
     tree *tr = construct_tree(exp, 0, exp.size() - 1, 1);
-    unordered_map<char, int> um;
-    um['A'] = 0;
-    um['B'] = 0;
-    um['C'] = 0;
-    um['D'] = 1;
-    um['E'] = 1;
-    um['F'] = 1;
-    um['G'] = 0;
-    um['H'] = 1;
-    um['K'] = 1;
+    vector<char> chars;
+    int line = 0;
+    while (getline(readfile, mytext))
+    {
+        // Output the text from the file
+        if (line == 0)
+        {
+            for (int i = 0; i < mytext.size(); i++)
+            {
+                if (mytext[i] != ',')
+                {
+                    um[mytext[i]] = 0;
+                    chars.push_back(mytext[i]);
+                }
+            }
+        }
+        else
+        {
+            // cout << mytext << endl;
 
-    um['R'] = 1;
-    cout << depth << " ";
+            for (int i = 0, j = 0; i < mytext.size(); i++)
+            {
+                if (mytext[i] != ',')
+                {
+                    um[chars[j]] = int(mytext[i] - 48);
+                    j++;
+                }
+            }
+            writefile << evaluate(tr, um) << "\n";
+            // cout << "*" << evaluate(tr, um) << endl;
+        }
+        line++;
+    }
+
+    cout <<"Tree Depth" <<depth << " ";
     if (depth > 6)
     {
         print_tree(tr, 0);
@@ -299,9 +297,8 @@ int main()
     {
         printTree(tr, exp.size(), depth);
     }
-    cout << endl
-         << "*" << evaluate(tr, um);
-    // postorder(tr);
-    // print_tree_indented(tr);
+
+    writefile.close();
+    readfile.close();
     return 0;
 }

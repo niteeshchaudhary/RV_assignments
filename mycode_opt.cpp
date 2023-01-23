@@ -4,9 +4,11 @@
 #include <unordered_map>
 #include <stdlib.h>
 #include <queue>
+#include <math.h>
 using namespace std;
 
 unordered_map<char, queue<int>> order;
+int depth = 1;
 class tree
 {
 public:
@@ -27,17 +29,21 @@ void readexpr(string expr)
         order[expr[i]].push(i);
     }
 }
-tree *construct_tree(string arr, int l, int r)
+tree *construct_tree(string arr, int l, int r, int d)
 {
     tree *tr = new tree(' ');
+    if (depth < d)
+    {
+        depth = d;
+    }
 
     if (order['>'].size() > 0 && order['>'].front() >= l && order['>'].front() <= r)
     {
         int i = order['>'].front();
         order['>'].pop();
         tr->val = '>';
-        tr->left = construct_tree(arr, l, i - 1);
-        tr->right = construct_tree(arr, i + 1, r);
+        tr->left = construct_tree(arr, l, i - 1, d + 1);
+        tr->right = construct_tree(arr, i + 1, r, d + 1);
         return tr;
     }
     if (order['^'].size() > 0 && order['^'].front() >= l && order['^'].front() <= r)
@@ -45,8 +51,8 @@ tree *construct_tree(string arr, int l, int r)
         int i = order['^'].front();
         order['^'].pop();
         tr->val = '^';
-        tr->left = construct_tree(arr, l, i - 1);
-        tr->right = construct_tree(arr, i + 1, r);
+        tr->left = construct_tree(arr, l, i - 1, d + 1);
+        tr->right = construct_tree(arr, i + 1, r, d + 1);
         return tr;
     }
     if (order['v'].size() > 0 && order['v'].front() >= l && order['v'].front() <= r)
@@ -54,8 +60,8 @@ tree *construct_tree(string arr, int l, int r)
         int i = order['v'].front();
         order['v'].pop();
         tr->val = 'v';
-        tr->left = construct_tree(arr, l, i - 1);
-        tr->right = construct_tree(arr, i + 1, r);
+        tr->left = construct_tree(arr, l, i - 1, d + 1);
+        tr->right = construct_tree(arr, i + 1, r, d + 1);
         return tr;
     }
     if (order['!'].size() > 0 && order['!'].front() >= l && order['!'].front() <= r)
@@ -64,7 +70,7 @@ tree *construct_tree(string arr, int l, int r)
         order['!'].pop();
         tr->val = '!';
         tr->left = NULL;
-        tr->right = construct_tree(arr, i + 1, r);
+        tr->right = construct_tree(arr, i + 1, r, d + 1);
         return tr;
         return tr;
     }
@@ -206,13 +212,72 @@ int evaluate(tree *parseTree, unordered_map<char, int> um)
     // cout << "{" << parseTree->val << endl;
     return um[parseTree->val];
 }
+void printTree(tree *tr, int sz, int depth)
+{
+    queue<pair<tree *, int>> qu;
+    int lvl = 0;
+    qu.push(make_pair(tr, 1));
+    int lim = sz;
+    int chng = 0;
+    while (!qu.empty())
+    {
+        pair<tree *, int> pr = qu.front();
+        qu.pop();
+
+        if (lvl != pr.second)
+        {
+            cout << "\n";
+            lim = int(pow(2, depth - lvl)) - 1;
+            lvl = pr.second;
+            if (lvl == depth + 1)
+            {
+                break;
+            }
+            // cout << "|" << lim << "|";
+            chng = 0;
+        }
+        else
+        {
+            if (chng != 1)
+            {
+                lim = lim * 2 + 1;
+                chng = 1;
+            }
+            // cout << "|" << lim << "|";
+        }
+        // cout << "|" << lim << "|"<< "\n";
+        for (int ii = 0; ii < lim; ii++)
+        {
+            cout << " ";
+        }
+        cout << pr.first->val;
+        if (pr.first->left)
+        {
+            qu.push(make_pair(pr.first->left, pr.second + 1));
+        }
+        else
+        {
+            qu.push(make_pair(new tree(' '), pr.second + 1));
+        }
+        if (pr.first->right)
+        {
+            qu.push(make_pair(pr.first->right, pr.second + 1));
+        }
+        else
+        {
+            qu.push(make_pair(new tree(' '), pr.second + 1));
+        }
+        // cout << lim << " ";
+    }
+    cout << "\n";
+}
 
 int main()
-{
-
+{   
+    FILE * fl=fopen("testcases","r");
     string exp = "!Av!BvCvDv!Dv!E>F^!G^GvF^!G^H";
     readexpr(exp);
-    tree *tr = construct_tree(exp, 0, exp.size() - 1);
+    tree *tr = construct_tree(exp, 0, exp.size() - 1, 1);
     unordered_map<char, int> um;
     um['A'] = 0;
     um['B'] = 0;
@@ -225,8 +290,15 @@ int main()
     um['K'] = 1;
 
     um['R'] = 1;
-
-    print_tree(tr, 0);
+    cout << depth << " ";
+    if (depth > 6)
+    {
+        print_tree(tr, 0);
+    }
+    else
+    {
+        printTree(tr, exp.size(), depth);
+    }
     cout << endl
          << "*" << evaluate(tr, um);
     // postorder(tr);

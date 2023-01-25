@@ -155,7 +155,7 @@
      unordered_map<char, int> um;
      ifstream readfile(argv[1]);
      ofstream writefile(argc == 3 ? argv[2] : "user.verdict");
- string exp = "!Av!BvCvDv!Dv!E>F^!G^GvF^!G^H";
+ 	string exp = "!Rv!G";
     readexpr(exp);
      tree *tr = construct_tree(exp, 0, exp.size() - 1, 1);
      vector<char> chars;

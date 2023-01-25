@@ -9,6 +9,7 @@
     "xutility": "cpp",
     "unordered_map": "cpp",
     "xstring": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "iosfwd": "cpp"
   }
 }

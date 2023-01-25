@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     ifstream readproperty(argv[1]);
     if(readproperty){
         ifstream readfile("./template/template.cpp");
-        ofstream writefile("monitor.cpp");
+        ofstream writefile("test_monitor.cpp");
 
         while (getline(readfile, mytext))
         {
@@ -29,8 +29,11 @@ int main(int argc, char *argv[])
                 writefile << mytext << "\n ";
             }
         }
+        cout<<"Succeed"<<endl;
         readfile.close();
         writefile.close();
+    }else{
+    cout<<"file not found"<<endl;
     }
     return 0;
 }

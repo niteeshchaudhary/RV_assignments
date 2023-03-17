@@ -204,6 +204,7 @@ int main()
 {
 
     string exp = "!Rv!G";
+
     unordered_map<char, int> um;
     um['A'] = 1;
     um['B'] = 1;

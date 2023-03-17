@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <queue>
+#include <cmath>
 #include <algorithm>
 using namespace std;
 
@@ -193,20 +195,85 @@ void print_tree(BinaryTree *root, int level)
     print_tree(root->getRightChild(), level + 1);
     for (int i = 0; i < level; i++)
         printf("      ");
-    
+
     cout << root->getRootVal();
     printf("\n");
     print_tree(root->getLeftChild(), level + 1);
 }
 
+void bfsprint(BinaryTree *root, int level)
+{
+    if (root == NULL)
+        return;
+    int nodes = pow(2, level);
+    int gap = nodes - 1;
+    int total = nodes + gap;
+    int spcl = total / 2;
+    int spcm = total;
+    int lv = 0;
+    queue<BinaryTree *> q;
+    q.push(root);
+    int itr = 1;
+    for (int i = 0; i < spcl; i++)
+    {
+        printf(" ");
+    }
+    while (!q.empty())
+    {
+        BinaryTree *temp = q.front();
+        q.pop();
+
+        cout << temp->getRootVal();
+        if (temp->getLeftChild() != NULL)
+        {
+            q.push(temp->getLeftChild());
+        }
+        else if(lv<level)
+        {
+            BinaryTree *t = new BinaryTree(" ");
+            q.push(t);
+        }
+        if (temp->getLeftChild() != NULL)
+        {
+            q.push(temp->getRightChild());
+        }
+        else if(lv<level)
+        {
+            BinaryTree *t = new BinaryTree(" ");
+            q.push(t);
+        }
+        itr++;
+        double logrs = log2(itr);
+        if (logrs == int(logrs))
+        {
+            printf("\n");
+            lv++;
+            spcm = spcl;
+            spcl = spcl / 2;
+            for (int i = 0; i < spcl; i++)
+            {
+                printf(" ");
+            }
+        }
+        else
+        {
+            for (int i = 0; i < spcm; i++)
+            {
+                printf(" ");
+            }
+        }
+    }
+}
+
 int main()
 {
 
-    BinaryTree *pt = buildParseTree("( ( 10 + 5 ) * 3 )");
+    BinaryTree *pt = buildParseTree("( ( ( 4 + 7 ) - 8 ) * ( 3 - 2 ) )");
 
-    postorder(pt);
-    // print_tree_indented(pt);
-    //print_tree(pt, 0);
+    inorder(pt);
+    //bfsprint(pt, 5);
+    //print_tree_indented(pt);
+     print_tree(pt, 0);
 
     return 0;
 }

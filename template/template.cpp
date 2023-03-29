@@ -109,19 +109,23 @@ tree *construct_tree(string arr, int l, int r, int d)
         tr->right = construct_tree(arr, i + 1, r, d + 1);
         return tr;
     }
-    if (order['F'].size() > 0 && order['F'].front() >= l && order['F'].front() <= r)
+     if (order['F'].size() > 0 && order['F'].front() >= l && order['F'].front() <= r)
     {
-        // check for F in arr
         int i = order['F'].front();
         order['F'].pop();
-        // tr->utime = atoi(arr.substr(i + 1, arr.length()).c_str());
-        string stime = to_string(tr->utime);
-        // maxwait = max(maxwait, tr->utime);
-        // minwait = max(minwait, 1);
-        // int len = stime.length();
+        tr->ltime = atoi(arr.substr(i + 2, arr.length()).c_str());
+        string stime = to_string(tr->ltime);
+        int len = stime.length();
+
+        tr->utime = atoi(arr.substr(i + 3 + len, arr.length()).c_str());
+        string etime = to_string(tr->utime);
+        int len2 = etime.length();
+        maxwait = max(maxwait, tr->utime);
+        minwait = max(minwait, tr->utime);
+
         tr->val = 'F';
         tr->left = NULL;
-        tr->right = construct_tree(arr, i + 1, r, d + 1);
+        tr->right = construct_tree(arr, i + 4 + len2 + len, r, d + 1);
         return tr;
     }
     if (order['E'].size() > 0 && order['E'].front() >= l && order['E'].front() <= r)
@@ -154,19 +158,23 @@ tree *construct_tree(string arr, int l, int r, int d)
         tr->right = construct_tree(arr, i + 1 + len, r, d + 1);
         return tr;
     }
-    if (order['G'].size() > 0 && order['G'].front() >= l && order['G'].front() <= r)
+     if (order['G'].size() > 0 && order['G'].front() >= l && order['G'].front() <= r)
     {
-        // check for E in arr
         int i = order['G'].front();
         order['G'].pop();
-        // tr->utime = atoi(arr.substr(i + 1, arr.length()).c_str());
-        // string stime = to_string(tr->utime);
-        // maxwait = max(maxwait, tr->utime);
-        // minwait = max(minwait, 1);
+        tr->ltime = atoi(arr.substr(i + 2, arr.length()).c_str());
+        string stime = to_string(tr->ltime);
+        int len = stime.length();
+
+        tr->utime = atoi(arr.substr(i + 3 + len, arr.length()).c_str());
+        string etime = to_string(tr->utime);
+        int len2 = etime.length();
+        maxwait = max(maxwait, tr->utime);
+        minwait = max(minwait, tr->utime);
 
         tr->val = 'G';
         tr->left = NULL;
-        tr->right = construct_tree(arr, i + 1, r, d + 1);
+        tr->right = construct_tree(arr, i + 4 + len2 + len, r, d + 1);
         return tr;
     }
     if (order['!'].size() > 0 && order['!'].front() >= l && order['!'].front() <= r)
@@ -264,58 +272,34 @@ public:
         }
     }
 
-    int atleastOneF(char x)
+    int atleastOneF(char x, int lsize, int usize)
     {
-        if (flques[x].size() >= 1)
+        cout << flques[x].size() << " " << x << " ";
+        if (flques[x].size() >= usize)
         {
-            if (flques[x][0] == 1 || F == 1)
+            for (int i = lsize; i <= usize; i++)
             {
-                F = 1;
-                return 1;
+                cout << flques[x][i] << " ";
+                if (flques[x][i] == 1)
+                    return 1;
             }
-
+            return 0;
+        }
+        else if (flques[x].size() >= lsize)
+        {
+            for (int i = lsize; i < flques[x].size(); i++)
+            {
+                if (flques[x][i] == 1)
+                {
+                    return 1;
+                }
+            }
             return 0;
         }
         else
         {
-            cout << "fault\n";
-            exit(0);
-        }
-    }
-    int allwaysG(char x)
-    {
-        if (flques[x].size() >= 1)
-        {
-            if (flques[x][0] == 1 && G == 1)
-            {
-                return 1;
-            }
-            G = 0;
+            cout << " fault"<< "\n";
             return 0;
-        }
-        else
-        {
-            cout << "fault\n";
-
-            exit(0);
-        }
-    }
-
-    int allways(char x, int size)
-    {
-        if (flques[x].size() >= size)
-        {
-            for (int i = 0; i < size; i++)
-            {
-                if (flques[x][i] != 1)
-                    return 0;
-            }
-            return 1;
-        }
-        else
-        {
-            cout << "fault\n";
-            exit(0);
         }
     }
 
@@ -345,6 +329,58 @@ public:
             exit(0);
         }
     }
+
+
+    int allwaysG(char x, int lsize, int usize)
+    {
+        cout << flques[x].size() << " " << x << " ";
+        if (flques[x].size() >= usize)
+        {
+            for (int i = lsize; i <= usize; i++)
+            {
+                cout << flques[x][i] << " ";
+                if (flques[x][i] != 1)
+                    return 0;
+            }
+            return 1;
+        }
+        else if (flques[x].size() >= lsize)
+        {
+            for (int i = lsize; i < flques[x].size(); i++)
+            {
+                if (flques[x][i] == 1)
+                {
+                    return 0;
+                }
+                
+            }
+            return 1;
+        }
+        else
+        {
+            cout << " fault"<< "\n";
+            return 0;
+        }
+    }
+
+    int allways(char x, int size)
+    {
+        if (flques[x].size() >= size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                if (flques[x][i] != 1)
+                    return 0;
+            }
+            return 1;
+        }
+        else
+        {
+            cout << "fault\n";
+            exit(0);
+        }
+    }
+
 };
 int evaluate(tree *parseTree, unordered_map<char, int> um)
 {
@@ -400,7 +436,7 @@ int evaluate(tree *parseTree, unordered_map<char, int> um)
         }
         if (parseTree->val == 'F')
         {
-            int rs = Oper.atleastOneF(rightC->val);
+            int rs = Oper.atleastOneF(rightC->val, parseTree->ltime, parseTree->utime);
             return rs;
         }
         if (parseTree->val == 'H')
@@ -410,7 +446,7 @@ int evaluate(tree *parseTree, unordered_map<char, int> um)
         }
         if (parseTree->val == 'G')
         {
-            int rs = Oper.allwaysG(rightC->val);
+            int rs = Oper.allwaysG(rightC->val, parseTree->ltime, parseTree->utime);
             return rs;
         }
         if (parseTree->val == '!')
